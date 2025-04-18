@@ -15,8 +15,14 @@ const Login = () => {
         e.preventDefault()
         if(!isSigningIn) {
             setIsSigningIn(true)
-            await doSignInWithEmailAndPassword(email, password)
-            // doSendEmailVerification()
+            setErrorMessage('') // Clear previous error
+            try {
+                await doSignInWithEmailAndPassword(email, password)
+            } catch (error) {
+                console.error(error)
+                setErrorMessage('Adresse e-mail ou mot de passe incorrect.')
+                setIsSigningIn(false)
+            }
         }
     }
 
@@ -24,7 +30,10 @@ const Login = () => {
         e.preventDefault()
         if (!isSigningIn) {
             setIsSigningIn(true)
+            setErrorMessage('')
             doSignInWithGoogle().catch(err => {
+                console.error(err)
+                setErrorMessage("Échec de la connexion avec Google.")
                 setIsSigningIn(false)
             })
         }
@@ -38,7 +47,7 @@ const Login = () => {
                 <div className="w-96 text-gray-600 space-y-5 p-4 shadow-xl border rounded-xl">
                     <div className="text-center">
                         <div className="mt-2">
-                            <h3 className="text-gray-800 text-xl font-semibold sm:text-2xl">Welcome Back</h3>
+                            <h3 className="text-gray-800 text-xl font-semibold sm:text-2xl">Se connecter</h3>
                         </div>
                     </div>
                     <form
@@ -61,7 +70,7 @@ const Login = () => {
 
                         <div>
                             <label className="text-sm text-gray-600 font-bold">
-                                Password
+                                Mot de passe
                             </label>
                             <input
                                 type="password"
@@ -81,12 +90,12 @@ const Login = () => {
                             disabled={isSigningIn}
                             className={`w-full px-4 py-2 text-white font-medium rounded-lg ${isSigningIn ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300'}`}
                         >
-                            {isSigningIn ? 'Signing In...' : 'Sign In'}
+                            {isSigningIn ? 'Signing In...' : 'Se connecter'}
                         </button>
                     </form>
-                    <p className="text-center text-sm">Don't have an account? <Link to={'/register'} className="hover:underline font-bold">Sign up</Link></p>
+                    <p className="text-center text-sm">Vous n'avez pas de compte ? <Link to={'/register'} className="hover:underline font-bold">S'inscrire</Link></p>
                     <div className='flex flex-row text-center w-full'>
-                        <div className='border-b-2 mb-2.5 mr-2 w-full'></div><div className='text-sm font-bold w-fit'>OR</div><div className='border-b-2 mb-2.5 ml-2 w-full'></div>
+                        <div className='border-b-2 mb-2.5 mr-2 w-full'></div><div className='text-sm font-bold w-fit'>OU</div><div className='border-b-2 mb-2.5 ml-2 w-full'></div>
                     </div>
                     <button
                         disabled={isSigningIn}
