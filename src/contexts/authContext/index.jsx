@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
-import { auth } from "../../firebase/firebase";
-import { GoogleAuthProvider } from "firebase/auth";
-import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../../firebase/firebase";
+import { GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 const AuthContext = React.createContext();
 
@@ -23,22 +23,36 @@ export function AuthProvider({ children }) {
 
   async function initializeUser(user) {
     if (user) {
+      try {
+        // 🔥 On récupère aussi les infos depuis Firestore (ex : rôle)
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userDocRef);
 
-      setCurrentUser({ ...user });
+        const userData = userSnapshot.exists() ? userSnapshot.data() : {};
 
-      // check if provider is email and password login
-      const isEmail = user.providerData.some(
-        (provider) => provider.providerId === "password"
-      );
-      setIsEmailUser(isEmail);
+        setCurrentUser({
+          uid: user.uid,
+          email: user.email,
+          role: userData.role || null, // 👈 rôle depuis Firestore
+          ...userData
+        });
 
-      // check if the auth provider is google or not
-      const isGoogle = user.providerData.some(
-        (provider) => provider.providerId === GoogleAuthProvider.PROVIDER_ID
-      );
-      setIsGoogleUser(isGoogle);
+        const isEmail = user.providerData.some(
+          (provider) => provider.providerId === "password"
+        );
+        setIsEmailUser(isEmail);
 
-      setUserLoggedIn(true);
+        const isGoogle = user.providerData.some(
+          (provider) => provider.providerId === GoogleAuthProvider.PROVIDER_ID
+        );
+        setIsGoogleUser(isGoogle);
+
+        setUserLoggedIn(true);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données utilisateur :", error);
+        setCurrentUser(null);
+        setUserLoggedIn(false);
+      }
     } else {
       setCurrentUser(null);
       setUserLoggedIn(false);
@@ -51,7 +65,7 @@ export function AuthProvider({ children }) {
     userLoggedIn,
     isEmailUser,
     isGoogleUser,
-    currentUser,
+    currentUser, // 👈 contient maintenant .role
     setCurrentUser
   };
 

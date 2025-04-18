@@ -7,6 +7,10 @@ import Home from "./components/home";
 import { AuthProvider } from "./contexts/authContext";
 import { useRoutes } from "react-router-dom";
 
+import BudgetGeneral from "./Pages/BudgetGeneral/BudgetGeneral";
+import BudgetParrain from './Pages/BudgetParrain/BudgetParrain';
+import Unauthorized from "./Pages/Unauthorized";
+
 function App() {
   const routesArray = [
     {
@@ -24,6 +28,18 @@ function App() {
     {
       path: "/home",
       element: <Home />,
+    },
+    {
+      path: "/budget-general",
+      element: <BudgetGeneral />,
+    },
+    {
+      path: "/budget-parrain",
+      element: <BudgetParrain />,
+    },
+    {
+      path: "/unauthorized",
+      element: <Unauthorized />,
     },
   ];
   let routesElement = useRoutes(routesArray);
